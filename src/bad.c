@@ -10,6 +10,7 @@
 
 /* TODO: Use calloc */
 /* TODO: Make capacity managment more reasonable */
+/* TODO: Consider the element destructor */
 
 struct bad_vec_t {
     char *mem;
@@ -50,10 +51,7 @@ bool bad_vec_init(
 bool bad_vec_destroy(bad_vec_t **v)
 {
     assert(NULL != *v);
-    if (NULL != (*v)->elem_destructor)
-    {
-        bad_vec_foreach((*v), (*v)->elem_destructor);
-    }
+    free((*v)->mem);
     free(*v);
     *v = NULL;
     return true;
@@ -71,7 +69,7 @@ void bad_vec_push(bad_vec_t *v, void *e)
         v->capacity *= 2;
     }
     memcpy(v->mem + (v->elems * v->elem_size), e, v->elem_size);
-    v->elems += 1;
+    (v->elems)++;
 }
 
 char *bad_vec_elem_at(bad_vec_t *v, size_t i)

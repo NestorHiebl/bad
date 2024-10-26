@@ -25,17 +25,17 @@ int main(void)
     bad_vec_t *y;
     bad_vec_init(&y, sizeof(uint32_t), free);
 
-    assert(sizeof(uint32_t) == x->elem_size);
+    assert(sizeof(uint32_t) == y->elem_size);
     uint32_t uint32_arr[] = {0,1,2,3,4,5,6,7};
-    for(size_t i = 0; i < sizeof(uint32_arr); i++)
+    for(size_t i = 0; i < (sizeof(uint32_arr) / sizeof(uint32_t)); i++)
     {
         bad_vec_push(y, &uint32_arr[i]);
         assert(*((uint32_t*) bad_vec_elem_at(y, i)) == uint32_arr[i]);
     }
-    assert(8u == x-> elems);
+    assert(8u == y->elems);
 
     bad_vec_foreach(y, double_vec_elems);
-    for(size_t i = 0; i < sizeof(uint32_arr); i++)
+    for(size_t i = 0; i < (sizeof(uint32_arr) / sizeof(uint32_t)); i++)
     {
         assert(*((uint32_t*) bad_vec_elem_at(y, i)) == (uint32_arr[i] * 2));
     }
@@ -51,3 +51,4 @@ void double_vec_elems(void *e)
     uint32_t *ptr = (uint32_t*) e;
     *ptr *= 2;
 }
+
