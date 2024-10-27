@@ -15,7 +15,8 @@ compile: ## Compile all sources
 	meson compile -C $(BUILDDIR)
 
 test: ## Run tests
-	meson test -C $(BUILDDIR)
+	meson test --wrap='valgrind --leak-check=full --error-exitcode=1' \
+	-C $(BUILDDIR)
 
 clean: ## Clean build directory
 	meson compile --clean -C $(BUILDDIR)
