@@ -8,33 +8,26 @@
 
 #define VA_INITIAL_CAPACITY 256
 
-/* TODO: Use calloc */
 /* TODO: Make capacity managment more reasonable */
-/* TODO: Consider the element destructor */
 
 struct bad_vec_t {
     char *mem;
     size_t elem_size;
     size_t elems;
     size_t capacity;
-    void (*elem_destructor)(void*);
 };
 
-bool bad_vec_init(
-    bad_vec_t **v,
-    size_t elem_size,
-    void (*elem_destructor)(void*)
-)
+bool bad_vec_init(bad_vec_t **v, size_t elem_size)
 {
     assert(NULL != v);
-    *v = malloc(sizeof(bad_vec_t));
+    *v = calloc(1u, sizeof(bad_vec_t));
     if (NULL == *v)
     {
         return false;
     }
 
     (*v)->elem_size = elem_size;
-    (*v)->mem = malloc(elem_size * VA_INITIAL_CAPACITY);
+    (*v)->mem = calloc(VA_INITIAL_CAPACITY, elem_size);
     if (NULL == (*v)->mem)
     {
         free(*v);
@@ -44,7 +37,6 @@ bool bad_vec_init(
     (*v)->capacity = VA_INITIAL_CAPACITY;
     (*v)->elems = 0;
 
-    (*v)->elem_destructor = elem_destructor;
     return true;
 }
 
@@ -79,13 +71,23 @@ char *bad_vec_elem_at(bad_vec_t *v, size_t i)
     return v->mem + (v->elem_size * i);
 }
 
-void bad_vec_foreach(bad_vec_t *v, void (*func) (void*))
+void bad_vec_map(bad_vec_t *v, void (*func) (void*))
 {
     assert(NULL != v);
     assert(NULL != func);
     for (size_t i = 0; i < v->elems; i++)
     {
         func(v->mem + (i * v->elem_size));
+    }
+}
+
+void bad_vec_fold(bad_vec_t *v, void *acc, void (*func)(void*, void*))
+{
+    assert(NULL != v);
+    assert(NULL != func);
+    for (size_t i = 0; i < v->elems; i++)
+    {
+        func(acc, v->mem + (i * v->elem_size));
     }
 }
 
