@@ -17,7 +17,15 @@ typedef struct bad_vec_t bad_vec_t;
 bool bad_vec_init(bad_vec_t **v, size_t elem_size);
 bool bad_vec_destroy(bad_vec_t **v);
 void bad_vec_push(bad_vec_t *v, void *e);
-/* TODO: Implement */
+
+/**
+ * Remove the final element of v and return a heap-allocated copy of it.
+ * The calling function now owns the copy of the element and is responsible
+ * for freeing it.
+ *
+ * The result of calling this function on a vector with 0 elements is
+ * undefined.
+ */
 void *bad_vec_pop(bad_vec_t *v);
 char *bad_vec_elem_at(bad_vec_t *v, size_t i);
 void bad_vec_map(bad_vec_t *v, void (*func) (void*));

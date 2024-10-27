@@ -45,6 +45,11 @@ int main(void)
     bad_vec_fold(y, &y_fold_accumulator, sum_vec_elems);
     assert(56u == y_fold_accumulator);
 
+    uint32_t *popped = bad_vec_pop(y);
+    assert(14u == *popped);
+    assert(7u == y->elems);
+    free(popped);
+
     bad_vec_destroy(&y);
     assert(NULL == y);
 

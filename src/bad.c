@@ -9,6 +9,7 @@
 #define VA_INITIAL_CAPACITY 256
 
 /* TODO: Make capacity managment more reasonable */
+/* TODO: Handle null terminated stringss */
 
 struct bad_vec_t {
     char *mem;
@@ -62,6 +63,21 @@ void bad_vec_push(bad_vec_t *v, void *e)
     }
     memcpy(v->mem + (v->elems * v->elem_size), e, v->elem_size);
     (v->elems)++;
+}
+
+void *bad_vec_pop(bad_vec_t *v)
+{
+    assert(NULL != v);
+    assert(v->elems > 0);
+
+    void *e = malloc(v->elem_size);
+    assert((NULL != e) && "Here's a penny. Go buy more RAM.");
+
+    memcpy(e, v->mem + ((v->elems - 1u) * v->elem_size), v->elem_size);
+    memset(v->mem + ((v->elems - 1u) * v->elem_size), 0, v->elem_size);
+    (v->elems)--;
+
+    return e;
 }
 
 char *bad_vec_elem_at(bad_vec_t *v, size_t i)
