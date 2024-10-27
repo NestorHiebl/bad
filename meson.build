@@ -1,6 +1,8 @@
-project('bad', 'c')
-
-add_global_arguments('-Wall', '-Wextra',  '-pedantic', '-Werror', '-g', language: 'c')
+project(
+  'bad',
+  'c',
+  default_options: ['debug=true','warning_level=everything', 'werror=true']
+)
 
 inc = include_directories('inc')
 
