@@ -7,6 +7,7 @@
 #include "bad.c"
 
 void double_vec_elems(void *e);
+void halve_vec_elems(void *acc, void *e);
 void sum_vec_elems(void *acc, void *e);
 
 int main(void)
@@ -22,7 +23,7 @@ int main(void)
     bad_vec_destroy(&x);
     assert(NULL == x);
 
-    /* Push a few elements and foreach them */
+    /* Push a few elements and "map" them */
     bad_vec_t *y;
     bad_vec_init(&y, sizeof(uint32_t));
 
@@ -50,6 +51,15 @@ int main(void)
     assert(7u == y->elems);
     free(popped);
 
+    /* Folding with a NULL accumulator should be allowed if the callback
+     * does not reference the accumulator. In that case the fold is equivalent
+     * to a map. */
+    bad_vec_fold(y, NULL, halve_vec_elems);
+    for(size_t i = 0; i < ((sizeof(uint32_arr) / sizeof(uint32_t)) - 1); i++)
+    {
+        assert(*((uint32_t*) bad_vec_elem_at(y, i)) == (uint32_arr[i]));
+    }
+
     bad_vec_destroy(&y);
     assert(NULL == y);
 
@@ -60,6 +70,14 @@ void double_vec_elems(void *e)
 {
     uint32_t *ptr = (uint32_t*) e;
     *ptr *= 2;
+}
+
+void halve_vec_elems(void *acc, void *e)
+{
+    /* Do not use the accumulator */
+    (void) acc;
+    uint32_t *ptr = (uint32_t*) e;
+    *ptr /= 2;
 }
 
 void sum_vec_elems(void *acc, void *e)
