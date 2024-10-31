@@ -14,10 +14,10 @@ int main(void)
 {
     /* Just create and destroy a vec, do nothing else */
     bad_vec_t *x;
-    bad_vec_init(&x, sizeof(char));
+    bad_vec_weak_init(&x, NULL);
 
     assert(VA_INITIAL_CAPACITY == x->capacity);
-    assert(sizeof(char) == x->elem_size);
+    assert(!bad_vec_is_strong(x));
     assert(0u == x-> elems);
 
     bad_vec_destroy(&x);

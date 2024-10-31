@@ -8,26 +8,35 @@
 
 #define VA_INITIAL_CAPACITY 256
 
+/* TODO: Distingish between strong and weak vectors */
 /* TODO: Make capacity managment more reasonable */
-/* TODO: Handle null terminated stringss */
 
 struct bad_vec_t {
-    char *mem;
-    size_t elem_size;
-    size_t elems;
+    void **mem;
+    size_t num_elems;
     size_t capacity;
+    bool strong;
+    void (*e_construct)(void*);
+    void (e_destroy)(void*);
+    int (e_compare)(void*, void*);
 };
 
-bool bad_vec_init(bad_vec_t **v, size_t elem_size)
+bool bad_vec_strong_init(
+    bad_vec_t **v,
+    void (*e_construct)(void*),
+    void (e_destroy)(void*),
+    int (e_compare)(void*, void*)
+)
 {
     assert(NULL != v);
+    assert(NULL != e_construct);
+    assert(NULL != e_destroy);
     *v = calloc(1u, sizeof(bad_vec_t));
     if (NULL == *v)
     {
         return false;
     }
 
-    (*v)->elem_size = elem_size;
     (*v)->mem = calloc(VA_INITIAL_CAPACITY, elem_size);
     if (NULL == (*v)->mem)
     {
@@ -43,11 +52,7 @@ bool bad_vec_init(bad_vec_t **v, size_t elem_size)
 
 bool bad_vec_destroy(bad_vec_t **v)
 {
-    assert(NULL != *v);
-    free((*v)->mem);
-    free(*v);
-    *v = NULL;
-    return true;
+    return false;
 }
 
 void bad_vec_push(bad_vec_t *v, void *e)
@@ -89,6 +94,7 @@ char *bad_vec_elem_at(bad_vec_t *v, size_t i)
 
 void bad_vec_map(bad_vec_t *v, void (*func) (void*))
 {
+    /* TODO: Null check? */
     assert(NULL != v);
     assert(NULL != func);
     for (size_t i = 0; i < v->elems; i++)
@@ -99,6 +105,7 @@ void bad_vec_map(bad_vec_t *v, void (*func) (void*))
 
 void bad_vec_fold(bad_vec_t *v, void *acc, void (*func)(void*, void*))
 {
+    /* TODO: Null check? */
     assert(NULL != v);
     assert(NULL != func);
     for (size_t i = 0; i < v->elems; i++)
