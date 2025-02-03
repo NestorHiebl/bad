@@ -25,7 +25,7 @@ typedef struct bad_vec_t bad_vec_t;
  */
 bool bad_vec_strong_init(
     bad_vec_t **v,
-    void (*e_construct)(void*),
+    void* (*e_construct)(void*),
     void (e_destroy)(void*),
     int (e_compare)(void*, void*)
 );
@@ -51,6 +51,13 @@ bool bad_vec_weak_init(bad_vec_t **v, int (e_compare)(void*, void*));
 bool bad_vec_destroy(bad_vec_t **v);
 
 /**
+ * Check if v is a strong vector. Returns true if v is strong, false
+ * otherwise. For info on what constitutes a strong or weak vector, see the
+ * initialization functions bad_vec_strong_init and bad_vec_weak_init.
+ */
+bool bad_vec_is_strong(bad_vec_t *v);
+
+/**
  * Place a new element into v, immediately after the current final element in
  * v. If v is strong, e is copied using the e_construct callback provided when
  * v was created. Otherwise, if v is weak, only a pointer to e is stored and no
@@ -71,7 +78,7 @@ void bad_vec_push(bad_vec_t *v, void *e);
  * undefined.
  */
 void *bad_vec_pop(bad_vec_t *v);
-char *bad_vec_elem_at(bad_vec_t *v, size_t i);
+void *bad_vec_elem_at(bad_vec_t *v, size_t i);
 void bad_vec_map(bad_vec_t *v, void (*func) (void*));
 /* TODO: Implement */
 bad_vec_t *bad_vec_filter(bad_vec_t *v, bool (*func) (void*));
