@@ -8,7 +8,6 @@
 
 #define VA_INITIAL_CAPACITY 256
 
-/* TODO: Distingish between strong and weak vectors */
 /* TODO: Make capacity managment more reasonable */
 
 struct bad_vec_t {
@@ -145,23 +144,69 @@ void *bad_vec_elem_at(bad_vec_t *v, size_t i)
 
 void bad_vec_map(bad_vec_t *v, void (*func) (void*))
 {
-    /* TODO: Null check? */
     assert(NULL != v);
     assert(NULL != func);
     for (size_t i = 0; i < v->final_elem; i++)
     {
-        func(*(v->mem + i));
+        void *e_ptr = *(v->mem + i);
+        if (NULL != e_ptr)
+        {
+            func(e_ptr);
+        }
     }
+}
+
+bool bad_vec_filter(bad_vec_t *v, bool (*func) (void*), bad_vec_t **new)
+{
+    /* TODO: Test */
+    assert(NULL != v);
+    assert(NULL != func);
+    bool init_success = false;
+    if (bad_vec_is_strong(v))
+    {
+        init_success = bad_vec_strong_init(
+            new,
+            v->e_construct,
+            v->e_destroy,
+            v->e_compare
+        );
+    }
+    else
+    {
+        init_success = bad_vec_weak_init(
+            new,
+            v->e_compare
+        );
+    }
+
+    if (!init_success)
+    {
+        return false;
+    }
+
+    for (size_t i = 0; i < v->final_elem; i++)
+    {
+        void *e_ptr = *(v->mem + i);
+        /* Null check short-circuits the function call if false */
+        if ((NULL != e_ptr) && (func(e_ptr)))
+        {
+            bad_vec_push(*new, e_ptr);
+        }
+    }
+    return true;
 }
 
 void bad_vec_fold(bad_vec_t *v, void *acc, void (*func)(void*, void*))
 {
-    /* TODO: Null check? */
     assert(NULL != v);
     assert(NULL != func);
     for (size_t i = 0; i < v->final_elem; i++)
     {
-        func(acc, *(v->mem + i));
+        void *e_ptr = *(v->mem + i);
+        if (NULL != e_ptr)
+        {
+            func(acc, e_ptr);
+        }
     }
 }
 

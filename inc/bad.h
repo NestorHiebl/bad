@@ -22,6 +22,8 @@ typedef struct bad_vec_t bad_vec_t;
  * None of v, e_construct and e_destroy may be NULL. e_compare may be NULL, but
  * calling bad_vec_sort on a bad_vec_t for which e_compare is NULL is
  * undefined.
+ *
+ * Returns true if creation was successful, false otherwise. 
  */
 bool bad_vec_strong_init(
     bad_vec_t **v,
@@ -39,6 +41,8 @@ bool bad_vec_strong_init(
  *
  * v may not be NULL. e_compare may be NULL, but calling bad_vec_sort on a
  * bad_vec_t for which e_compare is NULL is undefined.
+ *
+ * Returns true if creation was successful, false otherwise. 
  */
 bool bad_vec_weak_init(bad_vec_t **v, int (e_compare)(void*, void*));
 
@@ -47,6 +51,8 @@ bool bad_vec_weak_init(bad_vec_t **v, int (e_compare)(void*, void*));
  * is additionally deallocated using the e_destroy callback provided when v was
  * created. Otherwise, if v is weak, only the memory of v itself is deallocated
  * and no action is taken on any of the elements of v.
+ *
+ * Returns true if destruction was successful, false otherwise. 
  */
 bool bad_vec_destroy(bad_vec_t **v);
 
@@ -79,9 +85,31 @@ void bad_vec_push(bad_vec_t *v, void *e);
  */
 void *bad_vec_pop(bad_vec_t *v);
 void *bad_vec_elem_at(bad_vec_t *v, size_t i);
+
+/**
+ * Call func on every element of v. Null elements of v will not be passed to
+ * func.
+ */
 void bad_vec_map(bad_vec_t *v, void (*func) (void*));
-/* TODO: Implement */
-bad_vec_t *bad_vec_filter(bad_vec_t *v, bool (*func) (void*));
+
+/**
+ * Create a new vector using v as a baseline. func will be called on all
+ * non-null elements of v, and only those for which func returns true will be
+ * pushed into the new vector.
+ *
+ * Returns true if the creation of the new vector was successful, false
+ * otherwise. If creation was successful, the new vector is owned by the
+ * caller and is to be properly destroyed by them.
+ */
+bool bad_vec_filter(bad_vec_t *v, bool (*func) (void*), bad_vec_t **new);
+
+/**
+ * Call func on every element of v, performing some calculation and storing
+ * the result in acc. Null elements of v will not be passed to func.
+ *
+ * The accumulator acc will be passed to func as the first argument. The
+ * second argument to func will be an element of v.
+ */
 void bad_vec_fold(bad_vec_t *v, void *acc, void (*func)(void*, void*));
 void bad_vec_sort(bad_vec_t *v);
 bool bad_vec_is_strong(bad_vec_t *v);

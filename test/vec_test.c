@@ -31,7 +31,7 @@ int main(void)
     bad_vec_destroy(&x);
     assert(NULL == x);
 
-    char test_strings[][512] = {
+    char *test_strings[] = {
         "sator arepo tenet opera rotas",
         "What indeed could be more monstous than to assert that things could "
         "become better by losing all their goodness?",
