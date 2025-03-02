@@ -8,14 +8,41 @@
 /* Include source file directly to test opaque structures and static methods */
 #include "bad.c"
 
+void baseline_tests(void);
+void filter_tests(void);
+
+/* Helper functions */
 void string_to_upper(void *e);
 void sum_string_lengths(void *acc, void *e);
 void *construct_string(void *str);
 int compare_string(void *a, void *b);
+bool is_palindrome(void *e);
 
-#define NUM_TEST_STRINGS 9
+#define NUM_TEST_STRINGS 9u
+static char *test_strings[] = {
+    "sator arepo tenet opera rotas",
+    "What indeed could be more monstous than to assert that things could "
+    "become better by losing all their goodness?",
+    "From festering sockets in his spine fine copper wires trail in a fan",
+    "There could be no things but nameless things, no names but thingless "
+    "names",
+    "able was i ere i saw elba",
+    "Not that which must be reached in order to alter him, but that which "
+    "must be left intact in order to respect him.",
+    "Let that fear what is capable of being affected!",
+    "I was flesh, and a breath that passeth away and cometh not again.",
+    "Come that day neither to destory nor to protect, but to bear witness."
+};
 
 int main(void)
+{
+    baseline_tests();
+    filter_tests();
+
+    return 0;
+}
+
+void baseline_tests(void)
 {
     /* Just create and destroy a weak vector, do nothing else */
     bad_vec_t *x;
@@ -30,21 +57,6 @@ int main(void)
 
     bad_vec_destroy(&x);
     assert(NULL == x);
-
-    char *test_strings[] = {
-        "sator arepo tenet opera rotas",
-        "What indeed could be more monstous than to assert that things could "
-        "become better by losing all their goodness?",
-        "From festering sockets in his spine fine copper wires trail in a fan",
-        "There could be no things but nameless things, no names but thingless "
-        "names",
-        "able was i ere i saw elba",
-        "Not that which must be reached in order to alter him, but that which "
-        "must be left intact in order to respect him.",
-        "Let that fear what is capable of being affected!",
-        "I was flesh, and a breath that passeth away and cometh not again.",
-        "Come that day neither to destory nor to protect, but to bear witness."
-    };
 
     /* Push a few elements to a strong vector and "map" them */
     bad_vec_t *y;
@@ -80,23 +92,41 @@ int main(void)
     ));
     free(popped);
 
-    assert((NUM_TEST_STRINGS - 1) == y->final_elem);
+    assert((NUM_TEST_STRINGS - 1u) == y->final_elem);
 
     /* Folding with a NULL accumulator should be allowed if the callback
      * does not reference the accumulator. In that case the fold is equivalent
      * to a map. */
-    /*
-    bad_vec_fold(y, NULL, halve_vec_elems);
-    for(size_t i = 0; i < ((sizeof(uint32_arr) / sizeof(uint32_t)) - 1); i++)
-    {
-        assert(*((uint32_t*) bad_vec_elem_at(y, i)) == (uint32_arr[i]));
-    }
-    */
 
     bad_vec_destroy(&y);
     assert(NULL == y);
+}
 
-    return 0;
+void filter_tests(void)
+{
+    bad_vec_t *v;
+    bad_vec_strong_init(&v, construct_string, free, compare_string);
+
+    for(size_t i = 0u; i < NUM_TEST_STRINGS; i++)
+    {
+        bad_vec_push(v, test_strings[i]);
+    }
+    assert(NUM_TEST_STRINGS == v->final_elem);
+
+    bad_vec_t *filtered;
+    assert(bad_vec_filter(v, is_palindrome, &filtered));
+    assert(2u == filtered->final_elem);
+    char *s = bad_vec_pop(filtered);
+    assert(0 == strcmp("able was i ere i saw elba", s));
+    free(s);
+    
+    s = bad_vec_pop(filtered);
+    assert(0 == strcmp("sator arepo tenet opera rotas", s));
+    free(s);
+    assert(0u == filtered->final_elem);
+
+    bad_vec_destroy(&v);
+    bad_vec_destroy(&filtered);
 }
 
 void string_to_upper(void *e)
@@ -126,3 +156,18 @@ int compare_string(void *a, void *b)
 {
     return strcmp((const char*) a,(const char*) b);
 }
+
+bool is_palindrome(void *e)
+{
+    const char *s = e;
+    size_t len = strlen(s);
+    for (size_t i = 0u; i <= len / 2u; i++)
+    {
+        if (s[i] != s[len - (i + 1u)])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
