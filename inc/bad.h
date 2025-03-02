@@ -57,6 +57,11 @@ bool bad_vec_weak_init(bad_vec_t **v, int (e_compare)(void*, void*));
 bool bad_vec_destroy(bad_vec_t **v);
 
 /**
+ * Returns the number of elements in v.
+ */
+size_t bad_vec_size(bad_vec_t *v);
+
+/**
  * Check if v is a strong vector. Returns true if v is strong, false
  * otherwise. For info on what constitutes a strong or weak vector, see the
  * initialization functions bad_vec_strong_init and bad_vec_weak_init.
@@ -111,10 +116,10 @@ bool bad_vec_filter(bad_vec_t *v, bool (*func) (void*), bad_vec_t **new);
  * second argument to func will be an element of v.
  */
 void bad_vec_fold(bad_vec_t *v, void *acc, void (*func)(void*, void*));
+
 void bad_vec_sort(bad_vec_t *v);
 bool bad_vec_is_strong(bad_vec_t *v);
 size_t bad_vec_capacity(bad_vec_t *v);
 
 char *bad_strcat(const char *dest, const char *src);
-uint16_t num_digits(uintmax_t n);
 

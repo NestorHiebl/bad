@@ -95,6 +95,11 @@ bool bad_vec_destroy(bad_vec_t **v)
     return true;
 }
 
+size_t bad_vec_size(bad_vec_t *v)
+{
+    return v->final_elem;
+}
+
 bool bad_vec_is_strong(bad_vec_t *v)
 {
     assert(NULL != v);
@@ -103,7 +108,7 @@ bool bad_vec_is_strong(bad_vec_t *v)
 
 void bad_vec_push(bad_vec_t *v, void *e)
 {
-    /*TODO: Make sane, handle weak vs strong */
+    /*TODO: Make sane */
     assert(NULL != v);
     assert(NULL != e);
     if (v->capacity <= v->final_elem)
@@ -158,7 +163,6 @@ void bad_vec_map(bad_vec_t *v, void (*func) (void*))
 
 bool bad_vec_filter(bad_vec_t *v, bool (*func) (void*), bad_vec_t **new)
 {
-    /* TODO: Test */
     assert(NULL != v);
     assert(NULL != func);
     bool init_success = false;
@@ -224,13 +228,3 @@ char *bad_strcat(const char *dest, const char *src)
     return retval;
 }
 
-uint16_t num_digits(uintmax_t n)
-{
-    uint16_t retval = 1u;
-    while (n > 10u)
-    {
-        n %= 10u;
-        retval++;
-    }
-    return retval;
-}
