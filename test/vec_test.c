@@ -10,12 +10,13 @@
 
 void baseline_tests(void);
 void filter_tests(void);
+void sort_tests(void);
 
 /* Helper functions */
 void string_to_upper(void *e);
 void sum_string_lengths(void *acc, void *e);
 void *construct_string(void *str);
-int compare_string(void *a, void *b);
+int compare_string(const void *a, const void *b);
 bool is_palindrome(void *e);
 
 #define NUM_TEST_STRINGS 9u
@@ -38,6 +39,7 @@ int main(void)
 {
     baseline_tests();
     filter_tests();
+    sort_tests();
 
     return 0;
 }
@@ -71,13 +73,13 @@ void baseline_tests(void)
 
     for(size_t i = 0u; i < NUM_TEST_STRINGS; i++)
     {
-        char **elem = bad_vec_elem_at(y, i);
-        assert(0 == strcmp((char*) *elem, test_strings[i]));
+        char *elem = bad_vec_elem_at(y, i);
+        assert(0 == strcmp(elem, test_strings[i]));
     }
 
     bad_vec_map(y, string_to_upper);
     assert(0 == strcmp(
-        *((char**) bad_vec_elem_at(y, 4)),
+        (char*) bad_vec_elem_at(y, 4),
         "ABLE WAS I ERE I SAW ELBA"
     ));
 
@@ -129,6 +131,32 @@ void filter_tests(void)
     bad_vec_destroy(&filtered);
 }
 
+void sort_tests(void)
+{
+    bad_vec_t *v;
+    bad_vec_weak_init(&v, compare_string);
+    for(size_t i = 0u; i < NUM_TEST_STRINGS; i++)
+    {
+        bad_vec_push(v, test_strings[i]);
+    }
+    assert(NUM_TEST_STRINGS == v->final_elem);
+
+    bad_vec_sort(v);
+    assert(NUM_TEST_STRINGS == bad_vec_size(v));
+
+    for(size_t i = 1u; i < NUM_TEST_STRINGS; i++)
+    {
+        assert(
+            0 > strcmp(
+                (char *) bad_vec_elem_at(v, i - 1u),
+                (char *) bad_vec_elem_at(v, i)
+            )
+        );
+    }
+
+    bad_vec_destroy(&v);
+}
+
 void string_to_upper(void *e)
 {
     char *ptr = (char*) e;
@@ -152,9 +180,12 @@ void *construct_string(void *str)
     return (void*) strdup((char*)str);
 }
 
-int compare_string(void *a, void *b)
+int compare_string(const void *a, const void *b)
 {
-    return strcmp((const char*) a,(const char*) b);
+    const char **x = (const char **) a;
+    const char **y = (const char **) b;
+
+    return strcmp(*x, *y);
 }
 
 bool is_palindrome(void *e)

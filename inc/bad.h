@@ -23,13 +23,13 @@ typedef struct bad_vec_t bad_vec_t;
  * calling bad_vec_sort on a bad_vec_t for which e_compare is NULL is
  * undefined.
  *
- * Returns true if creation was successful, false otherwise. 
+ * Returns true if creation was successful, false otherwise.
  */
 bool bad_vec_strong_init(
     bad_vec_t **v,
     void* (*e_construct)(void*),
     void (e_destroy)(void*),
-    int (e_compare)(void*, void*)
+    int (e_compare)(const void*, const void*)
 );
 
 /**
@@ -42,9 +42,12 @@ bool bad_vec_strong_init(
  * v may not be NULL. e_compare may be NULL, but calling bad_vec_sort on a
  * bad_vec_t for which e_compare is NULL is undefined.
  *
- * Returns true if creation was successful, false otherwise. 
+ * Returns true if creation was successful, false otherwise.
  */
-bool bad_vec_weak_init(bad_vec_t **v, int (e_compare)(void*, void*));
+bool bad_vec_weak_init(
+    bad_vec_t **v,
+    int (e_compare)(const void*, const void*)
+);
 
 /**
  * Deallocate the memory associated with v. If v is strong, every element of v
@@ -52,7 +55,7 @@ bool bad_vec_weak_init(bad_vec_t **v, int (e_compare)(void*, void*));
  * created. Otherwise, if v is weak, only the memory of v itself is deallocated
  * and no action is taken on any of the elements of v.
  *
- * Returns true if destruction was successful, false otherwise. 
+ * Returns true if destruction was successful, false otherwise.
  */
 bool bad_vec_destroy(bad_vec_t **v);
 
@@ -117,9 +120,12 @@ bool bad_vec_filter(bad_vec_t *v, bool (*func) (void*), bad_vec_t **new);
  */
 void bad_vec_fold(bad_vec_t *v, void *acc, void (*func)(void*, void*));
 
+/**
+ * Sort the elements of v using the e_compare function that was specified when
+ * v was initialized. Calling this function on a vector for which no e_compare
+ * function was passed on initialization is undefined.
+ */
 void bad_vec_sort(bad_vec_t *v);
-bool bad_vec_is_strong(bad_vec_t *v);
-size_t bad_vec_capacity(bad_vec_t *v);
 
 char *bad_strcat(const char *dest, const char *src);
 

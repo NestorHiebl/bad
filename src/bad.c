@@ -16,7 +16,7 @@ struct bad_vec_t {
     size_t capacity;
     void* (*e_construct)(void*);
     void (*e_destroy)(void*);
-    int (*e_compare)(void*, void*);
+    int (*e_compare)(const void*, const void*);
     bool strong;
 };
 
@@ -24,7 +24,7 @@ bool bad_vec_strong_init(
     bad_vec_t **v,
     void* (*e_construct)(void*),
     void (*e_destroy)(void*),
-    int (*e_compare)(void*, void*)
+    int (*e_compare)(const void*, const void*)
 )
 {
     assert(NULL != v);
@@ -57,7 +57,7 @@ bool bad_vec_strong_init(
 
 bool bad_vec_weak_init(
     bad_vec_t **v,
-    int (*e_compare)(void*, void*)
+    int (*e_compare)(const void*, const void*)
 )
 {
     assert(NULL != v);
@@ -144,7 +144,7 @@ void *bad_vec_elem_at(bad_vec_t *v, size_t i)
 {
     assert(NULL != v);
     assert(v->final_elem > i);
-    return v->mem + i;
+    return *(v->mem + i);
 }
 
 void bad_vec_map(bad_vec_t *v, void (*func) (void*))
@@ -212,6 +212,11 @@ void bad_vec_fold(bad_vec_t *v, void *acc, void (*func)(void*, void*))
             func(acc, e_ptr);
         }
     }
+}
+
+void bad_vec_sort(bad_vec_t *v)
+{
+    qsort(v->mem, bad_vec_size(v), sizeof(void*), v->e_compare);
 }
 
 char *bad_strcat(const char *dest, const char *src)
