@@ -216,6 +216,7 @@ void bad_vec_fold(bad_vec_t *v, void *acc, void (*func)(void*, void*))
 
 void bad_vec_sort(bad_vec_t *v)
 {
+    assert(NULL != v->e_compare);
     qsort(v->mem, bad_vec_size(v), sizeof(void*), v->e_compare);
 }
 
